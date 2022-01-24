@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+
+int** abrir(FILE *fp, int *linhas_main,int *colunas_main,int *maxcor, char *ch)
+{
+	int linhas,colunas,maximocor,**matriz,i,j;
+	
+	fp = fopen("exemplo.pgm", "r");
+	
+	if (fp == NULL)
+	{
+		printf ("Erro");
+		
+		getchar();
+		
+		return 0;
+	}
+	
+	fscanf (fp," %s\n",ch);
+	
+	fscanf (fp,"%d %d\n",&linhas,&colunas);
+	
+	
+	fscanf (fp,"%d\n", &maximocor);
+	
+	*maxcor = maximocor;
+	
+	matriz = malloc (linhas * sizeof(int*));
+	
+	for (i=0;i<colunas;i++)
+		matriz[i] = malloc (colunas * sizeof(int));
+	
+	for (i=0;i<linhas;i++)
+		for (j=0;j<colunas;j++)
+			fscanf (fp,"%d ", &matriz[i][j]);
+			
+	*linhas_main = linhas;
+	
+	*colunas_main = colunas;
+	
+	fclose(fp);
+	
+	return matriz;
+}
+
+void limiarizacao(FILE *fp,int **matriz,int linhas,int colunas, int maxcor,char *ch)
+{
+	
+	int i,j,branco=maxcor,preto=0,limiar=150;
+	
+	fp = fopen ("Limiarizacao.pgm", "w");
+	
+	if (fp == NULL)
+	{
+		printf ("Erro");
+		
+		getchar();
+		
+		return;
+	}
+	fprintf (fp,"%s\n",ch);
+	
+	fprintf (fp,"%d %d\n",linhas,colunas);
+	
+	fprintf (fp,"%d\n", maxcor);
+	
+	for (i=0;i<linhas;i++)
+		for (j=0;j<colunas;j++)
+		{
+			if (matriz[i][j]>limiar)
+				fprintf (fp,"%d ", branco);
+			else {
+				fprintf (fp,"%d ", preto);
+			}	
+		}
+		
+	fclose(fp);
+	
+}
+
+void negativo (FILE*fp, int **matriz, int linhas, int colunas,int maxcor,char *ch)
+{
+	int i,j,aux;
+	
+	fp = fopen ("Negativo.pgm", "w");
+	
+		if (fp == NULL)
+	{
+		printf ("Erro");
+		
+		getchar();
+		
+		return;
+	}
+	
+	fprintf (fp,"%s\n",ch);
+	
+	fprintf (fp,"%d %d\n",linhas,colunas);
+	
+	fprintf (fp,"%d\n", maxcor);
+	
+	for (i=0;i<linhas;i++)
+		for (j=0;j<colunas;j++)
+			fprintf (fp,"%d ", maxcor-matriz[i][j]);
+	
+	fclose(fp);
+}
+
+void histograma(FILE *fp, int **matriz, int linhas,int colunas,int maxcor)
+{
+	int i,j,vet_hist[maxcor+1],aux;
+	
+	fp = fopen ("HistogramaTonalidades.txt", "w");
+	
+	if (fp == NULL)
+	{
+		printf ("Erro");
+		
+		getchar();
+		
+		return;
+	}
+	
+	for (i=0;i<=maxcor;i++)
+		vet_hist[i]=0;
+	
+	for (i=0;i<linhas;i++)
+		for (j=0;j<colunas;j++)
+		{
+			aux = matriz[i][j];
+			vet_hist[aux]++;
+		}
+		
+	fprintf(fp,"Tonalidades :\n");
+		
+	for (i=0;i<=maxcor;i++)
+	{
+		
+		fprintf(fp,"[%d]->%d\n",i, vet_hist[i]);
+		
+	}
+	
+	fclose(fp);
+}
+
+int main ()
+{
+	FILE *fp,*fplimiar,*fpnegativo,*fphistograma;
+	int linhas,colunas,maxcor,**matriz;
+	char ch[2];
+	
+	matriz = abrir(fp,&linhas,&colunas,&maxcor,ch);
+	
+	limiarizacao (fplimiar,matriz,linhas,colunas,maxcor,ch);
+	
+	negativo (fpnegativo,matriz,linhas,colunas,maxcor,ch);
+		
+	histograma (fphistograma,matriz,linhas,colunas,maxcor);
+	
+	
+	free(matriz);
+		
+	
+}
